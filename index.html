@@ -1,0 +1,991 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía 7: Funciones Trigonométricas</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true
+        },
+        svg: {
+          fontCache: 'global'
+        },
+        chtml: {
+          displayAlign: 'left'
+        }
+      };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #4f46e5; --primary-dark: #4338ca; --primary-light: #eef2ff;
+            --secondary-color: #64748b; --success-color: #10b981; --success-light: #ecfdf5;
+            --danger-color: #ef4444; --danger-light: #fef2f2; --warning-color: #f59e0b;
+            --light-bg: #f1f5f9; --border-color: #cbd5e1; --text-color: #1e293b;
+            --white: #ffffff; --progress-color-start: #4f46e5; --progress-color-end: #10b981;
+        }
+        @keyframes moveGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        body {
+            font-family: 'Inter', sans-serif; display: flex; justify-content: center;
+            align-items: flex-start; min-height: 100vh;
+            background: linear-gradient(-45deg, #6d28d9, #4f46e5, #d946ef, #10b981);
+            background-size: 400% 400%; animation: moveGradient 20s ease infinite;
+            margin: 0; padding: 2em 1em;
+        }
+        .main-wrapper { width: 100%; max-width: 900px; position: relative; }
+        .card { background: var(--white); padding: 2.5em; border-radius: 16px; box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15); animation: fadeIn 0.5s ease-out; }
+        .hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDownFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #category-selection-screen h2 { font-size: 2em; color: var(--primary-color); text-align: center; margin-top: 0; margin-bottom: 0.5em; }
+        #category-selection-screen .subtitle { text-align: center; color: var(--secondary-color); margin-bottom: 2em; font-size: 1.1em; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+        #category-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5em; margin-bottom: 2.5em; }
+        .category-item { background-color: var(--white); border: 2px solid var(--border-color); border-radius: 12px; padding: 1.5em; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .category-item:hover:not(.completed) { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(79,70,229,0.1); border-color: var(--primary-color); }
+        .category-item h3 { margin: 0 0 0.5em 0; color: var(--primary-dark); font-size: 1.25em; }
+        .category-item p { margin: 0; color: var(--secondary-color); font-size: 0.95em; line-height: 1.5; }
+        .category-item.completed { border-color: var(--success-color); background-color: var(--success-light); cursor: default; }
+        .category-item.completed:hover { transform: none; box-shadow: none; }
+        .category-item.completed::before { content: '✔'; font-weight: bold; position: absolute; top: 1em; right: 1.2em; color: var(--success-color); font-size: 1.5em; }
+        .category-item .progress-info { margin-top: 1em; font-weight: bold; color: var(--success-color); }
+        #overall-progress-container { margin-top: 2em; text-align: center; border-top: 1px solid var(--border-color); padding-top: 2em;}
+        #overall-progress-container h3 { margin: 0 0 0.5em 0; color: var(--text-color); }
+        #overall-score { font-size: 1.2em; color: var(--secondary-color); }
+        #show-final-results-btn { padding: 12px 30px; font-size: 1em; font-weight: bold; color: var(--white); background-color: var(--success-color); border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s; margin-top: 1em; }
+        #show-final-results-btn:hover { background-color: #059669; }
+
+        /* --- New Summary Card Styles --- */
+        #summary-container h2 { font-size: 1.8em; margin-top: 0; margin-bottom: 0.2em; color: var(--primary-color); }
+        #summary-container .subtitle { color: var(--secondary-color); margin-top: 0; margin-bottom: 2em; }
+        .summary-section { margin-bottom: 2.5em; }
+        .summary-section h3 { font-size: 1.2em; font-weight: 700; color: var(--text-color); margin-bottom: 1em; padding-bottom: 0.5em; border-bottom: 2px solid var(--primary-light); display: flex; align-items: center; gap: 0.75em; }
+        .summary-key-concepts { line-height: 1.7; color: #374151; }
+        .summary-key-concepts p, .summary-key-concepts ul, .summary-key-concepts ol { margin-bottom: 1em; }
+        .summary-key-concepts ul, .summary-key-concepts ol { padding-left: 20px; }
+        .summary-key-concepts strong { color: var(--primary-dark); }
+        .summary-key-concepts mjx-container[display="true"] { background-color: rgba(79, 70, 229, 0.05); padding: 1em; border-radius: 8px; margin: 1em 0; }
+        .summary-tips-list { list-style: none; padding: 0; }
+        .summary-tips-list li { display: flex; align-items: flex-start; gap: 1em; margin-bottom: 1em; background-color: var(--primary-light); padding: 1em; border-radius: 8px; }
+        .summary-tips-list li::before { content: '💡'; font-size: 1.2em; line-height: 1.5; }
+        #summary-continue-btn { padding: 12px 30px; font-size: 1em; font-weight: bold; color: var(--white); background-color: var(--primary-color); border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: block; width: 100%; }
+        #summary-continue-btn:hover { background-color: var(--primary-dark); transform: scale(1.02); }
+
+        /* --- Main Quiz & Final Screen Styles --- */
+        #quiz-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5em; }
+        #problem-header { color: var(--text-color); font-weight: 600; font-size: 1.1em; }
+        #score-counter { color: var(--success-color); font-weight: 600; font-size: 1em; background-color: var(--success-light); padding: 5px 10px; border-radius: 8px; }
+        #progress-container { width: 100%; background-color: #e2e8f0; border-radius: 10px; margin-bottom: 1.5em; height: 12px; overflow: hidden; }
+        #progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--progress-color-start), var(--progress-color-end)); border-radius: 10px; transition: width 0.6s cubic-bezier(0.4, 0.0, 0.2, 1); }
+        #question-container { font-size: 1.15em; line-height: 1.7; margin: 1em 0; color: var(--text-color); text-align: justify; }
+        #question-container table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+        #question-container th, #question-container td { border: 1px solid var(--border-color); padding: 12px; text-align: center; }
+        #question-container th { background-color: var(--light-bg); font-weight: 600; }
+        #graph-container, .option-graph-canvas-container { width: 100%; max-width: 450px; margin: 1.5em auto; border-radius: 8px; overflow: hidden; }
+        #graph-container svg, #graph-container img, .option-graph-canvas-container svg, .option-graph-canvas-container img {max-width: 100%; height: auto; display: block; margin: 0 auto; background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);}
+        #options-container { margin-top: 1.5em; display: flex; flex-direction: column; gap: 0.75em; }
+        .option-button { display: flex; align-items: center; gap: 1em; width: 100%; padding: 14px 18px; font-size: 1.05em; text-align: left; background-color: var(--white); border: 2px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all 0.2s ease-in-out; }
+        .option-button:hover:not(.disabled) { border-color: var(--primary-color); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .option-button .label { font-weight: bold; color: var(--primary-color); }
+        .option-button .value { flex-grow: 1; }
+        .option-button.correct { border-color: var(--success-color); background-color: var(--success-light); }
+        .option-button.correct .label { color: var(--success-color); }
+        .option-button.incorrect { border-color: var(--danger-color); background-color: var(--danger-light); }
+        .option-button.incorrect .label { color: var(--danger-color); }
+        .option-button.disabled { cursor: not-allowed; }
+        .options-grid-with-graphs { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }
+        .option-block-graph { padding: 1em; border: 2px solid var(--border-color); border-radius: 12px; cursor: pointer; transition: all 0.2s ease-in-out; background-color: var(--white); }
+        .option-block-graph:hover:not(.disabled) { border-color: var(--primary-color); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .option-block-graph.correct { border-color: var(--success-color)!important; background-color: var(--success-light); }
+        .option-block-graph.incorrect { border-color: var(--danger-color)!important; background-color: var(--danger-light); }
+        .option-block-graph .label { font-size: 1.2em; font-weight: bold; margin-bottom: 0.5em; color: var(--primary-color); }
+        #feedback-container { margin-top: 1.5em; padding: 1.2em; border-radius: 12px; display: none; animation: slideDownFade 0.4s ease-out; line-height: 1.7; text-align: justify; }
+        #feedback-container.correct { background-color: var(--success-light); border-left: 5px solid var(--success-color); }
+        #feedback-container.incorrect { background-color: var(--danger-light); border-left: 5px solid var(--danger-color); }
+        #feedback-title { display: flex; align-items: center; font-size: 1.2em; font-weight: 700; margin-bottom: 0.5em; }
+        #feedback-title svg { width: 24px; height: 24px; margin-right: 8px; }
+        #feedback-container.correct #feedback-title { color: var(--success-color); }
+        #feedback-container.incorrect #feedback-title { color: var(--danger-color); }
+        #navigation-container { display: flex; justify-content: flex-end; margin-top: 2em; }
+        #next-button, .nav-btn { padding: 12px 30px; font-size: 1em; font-weight: bold; color: var(--white); background-color: var(--primary-color); border: none; border-radius: 10px; cursor: pointer; transition: all 0.3s; }
+        #next-button { visibility: hidden; opacity: 0; }
+        #next-button.visible { visibility: visible; opacity: 1; }
+        #next-button:hover, .nav-btn:hover { background-color: var(--primary-dark); }
+        #final-screen { text-align: center; animation: fadeIn 0.5s ease-out; }
+        #final-screen h2 { font-size: 2.2em; color: var(--primary-color); font-weight: 700; }
+        #final-screen p { font-size: 1.2em; }
+        .highlight { color: var(--primary-color); font-weight: 700; }
+        @media (max-width: 680px) { .options-grid-with-graphs { grid-template-columns: 1fr; } #category-list { grid-template-columns: 1fr; }}
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+        <div id="category-selection-screen" class="card">
+            <h2>Guía 7: Funciones Trigonométricas</h2>
+            <p class="subtitle">Selecciona un tema para comenzar. Cada sección se enfoca en una habilidad clave. ¡Completa todas las secciones para demostrar tu maestría!</p>
+            <ul id="category-list"></ul>
+            <div id="overall-progress-container" class="hidden">
+                <h3>Progreso General</h3>
+                <p id="overall-score"></p>
+                <button id="show-final-results-btn" class="nav-btn hidden">Ver Resumen Final</button>
+            </div>
+        </div>
+
+        <div id="quiz-wrapper" class="hidden">
+            <div id="summary-container" class="card hidden">
+                <h2 id="summary-title"></h2>
+                <p class="subtitle">Prepárate para la siguiente sección.</p>
+
+                <div class="summary-section">
+                    <h3>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book-open" style="color: var(--primary-dark);"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                      Conceptos Clave y Fórmulas
+                    </h3>
+                    <div id="summary-key-concepts" class="summary-key-concepts"></div>
+                </div>
+                
+                <div class="summary-section">
+                    <h3>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-zap" style="color: var(--warning-color);"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                      Consejos para esta Sección
+                    </h3>
+                    <ul id="summary-tips-list" class="summary-tips-list"></ul>
+                </div>
+                
+                <button id="summary-continue-btn">Comenzar Problemas</button>
+            </div>
+
+            <div id="quiz-container" class="hidden card">
+                <div id="progress-container"><div id="progress-bar"></div></div>
+                <div id="quiz-header-bar">
+                    <div id="problem-header"></div>
+                    <div id="score-counter"></div>
+                </div>
+                <div id="question-container"></div>
+                <div id="graph-container"></div>
+                <div id="options-container"></div>
+                <div id="feedback-container"></div>
+                <div id="navigation-container"><button id="next-button">Siguiente →</button></div>
+            </div>
+
+            <div id="final-screen" class="hidden card">
+                <h2 id="final-title"></h2>
+                <p id="final-message"></p>
+                <p id="final-score" style="font-size: 2.5em; font-weight: bold; margin: 0.5em 0;"></p>
+                <p id="final-percentage" style="font-size: 1.5em;"></p>
+                <button id="back-to-menu-btn" class="nav-btn">Volver al Menú</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function renderMath() {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        setTimeout(() => window.MathJax.typesetPromise(), 0);
+      }
+    }
+
+    function renderDiagram(diagram) {
+        if (!diagram) return '';
+        if (diagram.type === 'raster') {
+            return `<img src="${diagram.src}" alt="Diagrama" style="max-width: 100%; height: auto; display: block; margin: 0 auto; background: white; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" />`;
+        }
+        return '';
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const icons = {
+            check: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>`,
+            x: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`
+        };
+        const summaries = {
+  "ai-cat-1757005454953-0": {
+    "title": "Grupo 1: Conceptos Fundamentales e Interpretación de Gráficos",
+    "key_concepts_html": "<p>Este grupo se enfoca en los componentes esenciales de las funciones trigonométricas. Para abordar estas preguntas, es fundamental comprender:</p><ul><li><strong>Amplitud (<code>|A|</code>)</strong>: El valor absoluto del coeficiente principal de la función, que representa la mitad de la distancia entre el valor máximo y mínimo. Para <code>y = A sin(Bx + C) + D</code>, la amplitud es <code>|A|</code>.</li><li><strong>Período (<code>T</code>)</strong>: La duración de un ciclo completo de la onda. Se calcula como <code>T = \\frac{2\\pi}{|B|}</code> (en radianes) o <code>T = \\frac{360^\\circ}{|B|}</code> (en grados sexagesimales) para funciones de la forma <code>y = A sin(Bx + C) + D</code>.</li><li><strong>Recorrido (Rango)</strong>: El conjunto de todos los valores de salida posibles de la función. Para funciones de la forma <code>y = A sin(Bx + C) + D</code>, el recorrido es <code>[D - |A|, D + |A|]</code>. Es crucial considerar cualquier restricción de dominio.</li><li><strong>Identidades Trigonométricas Fundamentales</strong>:</li><ul><li>Función seno es impar: <code>sin(-x) = -sin(x)</code>.</li><li>Función coseno es par: <code>cos(-x) = cos(x)</code>.</li><li>Función tangente es impar: <code>tan(-x) = -tan(x)</code>.</li></ul><li><strong>Interpretación Gráfica</strong>: Reconocer la forma básica de las funciones seno (pasa por el origen con fase 0) y coseno (comienza en su máximo o mínimo con fase 0) y cómo la amplitud y el período afectan visualmente la gráfica.</li></ul>",
+    "tips": [
+      "Presta atención a los detalles en los enunciados y diagramas.",
+      "Recuerda revisar las fórmulas y conceptos clave relacionados antes de empezar.",
+      "Usa la explicación para entender tus errores y reforzar tu aprendizaje.",
+      "¡Mucha suerte en esta sección!"
+    ]
+  },
+  "ai-cat-1757005454953-1": {
+    "title": "Grupo 2: Transformaciones y Manipulación Algebraica",
+    "key_concepts_html": "<p>Esta sección se centra en cómo las modificaciones algebraicas afectan la gráfica de las funciones trigonométricas. Los conceptos clave incluyen:</p><ul><li><strong>Transformaciones de Amplitud</strong>: Multiplicar la función por una constante <code>A</code> cambia la amplitud a <code>|A|</code>.</li><li><strong>Transformaciones de Período</strong>: Un coeficiente <code>B</code> en el argumento (<code>Bx</code>) modifica el período a <code>T = \\frac{2\\pi}{|B|}</code> (o <code>T = \\frac{360^\\circ}{|B|}</code>). Un período triplicado implica que el nuevo coeficiente <code>B_{nuevo}</code> debe ser un tercio del original.</li><li><strong>Desplazamiento de Fase (Horizontal)</strong>: Un término <code>C</code> en <code>(Bx + C)</code> introduce un desplazamiento horizontal de <code>\\frac{-C}{B}</code>. Una fase de <code>90^\\circ</code> significa una traslación horizontal.</li><li><strong>Equivalencia entre Seno y Coseno</strong>: Las funciones seno y coseno están intrínsecamente relacionadas por un desfase de <code>90^\\circ</code>. Identidades cruciales son <code>\\cos(\\theta) = \\sin(\\theta + 90^\\circ)</code> y <code>\\sin(\\theta) = \\cos(\\theta - 90^\\circ)</code>.</li><li><strong>Soluciones Generales de Ecuaciones Trigonométricas</strong>: Cuando se resuelve para <code>x</code>, las soluciones suelen ser un conjunto infinito que incluye múltiplos de <code>360^\\circ</code> (<code>2\\pi</code>) debido a la periodicidad de las funciones.</li></ul>",
+    "tips": [
+      "Presta atención a los detalles en los enunciados y diagramas.",
+      "Recuerda revisar las fórmulas y conceptos clave relacionados antes de empezar.",
+      "Usa la explicación para entender tus errores y reforzar tu aprendizaje.",
+      "¡Mucha suerte en esta sección!"
+    ]
+  },
+  "ai-cat-1757005454953-2": {
+    "title": "Grupo 3: Aplicaciones Avanzadas y Modelado",
+    "key_concepts_html": "<p>Este grupo se enfoca en aplicar los conocimientos de funciones trigonométricas a situaciones más complejas y del mundo real, así como en manipulaciones avanzadas. Para un buen desempeño, considere:</p><ul><li><strong>Modelado de Fenómenos Periódicos</strong>: Las funciones trigonométricas son ideales para describir procesos que se repiten, como oscilaciones o ciclos. Una forma general es <code>y(t) = A \\cos(\\omega t + \\phi) + D</code>, donde:</li><ul><li><code>A</code> es la amplitud.</li><li><code>\\omega</code> es la frecuencia angular (<code>\\omega = \\frac{2\\pi}{T}</code>).</li><li><code>\\phi</code> es el desfase o fase inicial.</li><li><code>D</code> es el desplazamiento vertical.</li></ul><li><strong>Equivalencia de Fases entre Seno y Coseno</strong>: Es crucial poder convertir entre <code>\\sin(\\theta)</code> y <code>\\cos(\\theta)</code> mediante desfases. Las relaciones clave incluyen:</li><ul><li><code>\\cos(\\theta) = \\sin(\\theta + 90^\\circ)</code></li><li><code>\\sin(\\theta) = \\cos(\\theta - 90^\\circ)</code></li><li><code>\\cos(\\theta + 180^\\circ) = -\\cos(\\theta)</code></li><li><code>\\sin(\\theta + 270^\\circ) = -\\cos(\\theta)</code></li></ul><li><strong>Transformaciones Isométricas</strong>: Entender cómo las transformaciones (traslaciones, reflexiones, rotaciones) afectan la forma de una función trigonométrica. Mientras que traslaciones y reflexiones mantienen la forma sinusoidal, una rotación arbitraria puede alterarla fundamentalmente.</li><li><strong>Resolución de Ecuaciones Trigonométricas</strong>: Aplicar métodos algebraicos para encontrar los valores de la variable que satisfacen una ecuación trigonométrica, a menudo requiriendo soluciones generales.</li></ul>",
+    "tips": [
+      "Presta atención a los detalles en los enunciados y diagramas.",
+      "Recuerda revisar las fórmulas y conceptos clave relacionados antes de empezar.",
+      "Usa la explicación para entender tus errores y reforzar tu aprendizaje.",
+      "¡Mucha suerte en esta sección!"
+    ]
+  }
+};
+        const allProblemsData = [
+  {
+    "text": "Si la función graficada a continuación tiene fase 0, ¿a qué tipo de función trigonométrica puede corresponder?",
+    "options": [
+      {
+        "text": "A la función seno"
+      },
+      {
+        "text": "A la función coseno"
+      },
+      {
+        "text": "A la función tangente"
+      },
+      {
+        "text": "A la función seno o coseno, dependiendo de los coeficientes de cada función"
+      }
+    ],
+    "correct": 0,
+    "explanation": "Una función seno básica <code>f(x) = A\\sin(Bx)</code> con fase 0 (sin desplazamiento horizontal) pasa por el origen <code>(0,0)</code> y aumenta si <code>A</code> y <code>B</code> tienen el mismo signo. La descripción implica que la gráfica, al tener fase 0 y ascender desde el eje <code>x</code>, es característica de la función seno.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "2",
+    "internalId": "q-1757005454953-0.09707889492112687",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1757006524731-jg386i5dx8-Screenshot_20250904_131532.png",
+      "filename": "Screenshot_20250904_131532.png"
+    },
+    "id": "q-ai-cat-1757005454953-0-0"
+  },
+  {
+    "text": "¿Cuál es el recorrido de la función ƒ: (0,90] → ℝ, ƒ(x) = −2 cos(2x) ?",
+    "options": [
+      {
+        "text": "[−2, 2["
+      },
+      {
+        "text": "[−2, 0["
+      },
+      {
+        "text": "]−2, 0]"
+      },
+      {
+        "text": "]−2, 2]"
+      }
+    ],
+    "correct": 3,
+    "explanation": "La función coseno básica tiene un recorrido de <code>[-1, 1]</code>. Para <code>f(x) = -2\\cos(2x)</code>, la amplitud es <code>|-2|=2</code>, y el rango sin considerar el dominio sería <code>[-2, 2]</code>. Dado el dominio <code>(0, 90]</code>, el argumento <code>2x</code> va de <code>(0, 180]</code>. En este intervalo, <code>\\cos(2x)</code> toma valores desde <code>1</code> (excluido, cercano a <code>0^\\circ</code>) hasta <code>-1</code> (incluido, en <code>180^\\circ</code>), es decir, <code>\\cos(2x) \\in [-1, 1)</code>. Al multiplicar por <code>-2</code>, el orden del intervalo se invierte y los valores se duplican, resultando en <code>-2\\cos(2x) \\in (-2, 2]</code>. Por lo tanto, el recorrido es <code>( -2, 2]</code>.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "5",
+    "internalId": "q-1757005454953-0.23395040651115961",
+    "id": "q-ai-cat-1757005454953-0-1"
+  },
+  {
+    "text": "Si ƒ(x) = A cos(x) y g(x) = A cos(2x) donde A ≠ 0. ¿Cómo se comparan los periodos de ambas funciones?",
+    "options": [
+      {
+        "text": "Son iguales"
+      },
+      {
+        "text": "El de ƒ es el doble del de g"
+      },
+      {
+        "text": "El de ƒ es la mitad del de g"
+      },
+      {
+        "text": "Con la información disponible no se puede determinar"
+      }
+    ],
+    "correct": 1,
+    "explanation": "El período de una función <code>h(x) = B \\cos(Cx)</code> es <code>T = \\frac{2\\pi}{|C|}</code> (o <code>T = \\frac{360^\\circ}{|C|}</code>). Para <code>f(x) = A \\cos(x)</code>, <code>C=1</code>, entonces el período <code>T_f = \\frac{2\\pi}{1} = 2\\pi</code>. Para <code>g(x) = A \\cos(2x)</code>, <code>C=2</code>, entonces el período <code>T_g = \\frac{2\\pi}{2} = \\pi</code>. Claramente, <code>T_f = 2T_g</code>, es decir, el período de ƒ es el doble del de g.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "10",
+    "internalId": "q-1757005454953-0.798675333317676",
+    "id": "q-ai-cat-1757005454953-0-2"
+  },
+  {
+    "text": "¿Cuál de las siguientes afirmaciones es verdadera?",
+    "options": [
+      {
+        "text": "sen(−x) = −sen(x)"
+      },
+      {
+        "text": "cos(−x) = −cos(x)"
+      },
+      {
+        "text": "sen(−x) = sen(x)"
+      },
+      {
+        "text": "tan(−x) = tan(x)"
+      }
+    ],
+    "correct": 0,
+    "explanation": "La función seno es una función impar, lo que significa que <code>sin(-x) = -sin(x)</code>. La función coseno es una función par, por lo que <code>cos(-x) = cos(x)</code>. La función tangente también es impar, <code>tan(-x) = -tan(x)</code>.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "11",
+    "internalId": "q-1757005454953-0.30672786904064364",
+    "id": "q-ai-cat-1757005454953-0-3"
+  },
+  {
+    "text": "¿A cuál de las siguientes corresponde una función impar con periodo 180° y de amplitud 7?",
+    "options": [
+      {
+        "text": "7 cos(2x)"
+      },
+      {
+        "text": "2 cos(7x)"
+      },
+      {
+        "text": "7sen(2x)"
+      },
+      {
+        "text": "2sen(7x)"
+      }
+    ],
+    "correct": 2,
+    "explanation": "Una función impar es la función seno, lo que descarta las opciones A y B. La amplitud es 7, lo que indica que el coeficiente principal debe ser 7, descartando D. Para que el período sea <code>180^\\circ</code>, si la función es <code>A \\sin(Bx)</code>, entonces <code>\\frac{360^\\circ}{|B|} = 180^\\circ</code>, lo que implica <code>|B| = 2</code>. Por lo tanto, <code>7\\sin(2x)</code> cumple con todas las condiciones.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "13",
+    "internalId": "q-1757005454953-0.2393525023033478",
+    "id": "q-ai-cat-1757005454953-0-4"
+  },
+  {
+    "text": "Si ƒ(x) = sen(ax + b) y g(x) = cos(mx + n), ¿cuál de los siguientes argumentos nos permite asegurar que ƒ(x) = g(x) ∀x ∈ ℝ ?",
+    "options": [
+      {
+        "text": "Que a = m y b = n"
+      },
+      {
+        "text": "Que n – b = 90° y a = m"
+      },
+      {
+        "text": "Que b – n = 90° y a = –m"
+      },
+      {
+        "text": "Que a = m y b – n = 90°"
+      }
+    ],
+    "correct": 3,
+    "explanation": "Para que <code>\\sin(ax+b) = \\cos(mx+n)</code>, los argumentos deben ser iguales y los coeficientes de <code>x</code> (<code>a</code> y <code>m</code>) deben ser iguales. Utilizando la identidad <code>\\cos(\\theta) = \\sin(\\theta + 90^\\circ)</code>, podemos reescribir <code>g(x)</code> como <code>\\sin(mx + n + 90^\\circ)</code>. Para que <code>f(x) = g(x)</code>, necesitamos <code>a=m</code> y <code>b = n + 90^\\circ</code>, lo que implica <code>b - n = 90^\\circ</code>.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "1",
+    "internalId": "q-1757005454953-0.5904446377323032",
+    "id": "q-ai-cat-1757005454953-1-0"
+  },
+  {
+    "text": "Si no exigimos que la fase sea 0, ¿a cuál de las siguientes funciones NO puede corresponder la gráfica anterior (del problema 2)?",
+    "options": [
+      {
+        "text": "ƒ(x) = −4sen(x/2)"
+      },
+      {
+        "text": "ƒ(x) = 4sen(−x/2)"
+      },
+      {
+        "text": "ƒ(x) = 4 cos(x/2 + 90°)"
+      },
+      {
+        "text": "ƒ(x) = −4 cos(x/2 − 90°)"
+      }
+    ],
+    "correct": 2,
+    "explanation": "Asumiendo que la gráfica del problema 2 es una función seno con amplitud positiva, por ejemplo, <code>f(x) = 4\\sin(x/2)</code>. Transformando las opciones: A) <code>-4\\sin(x/2)</code>, B) <code>4\\sin(-x/2) = -4\\sin(x/2)</code>, C) <code>4\\cos(x/2 + 90^\\circ) = 4(-\\sin(x/2)) = -4\\sin(x/2)</code>, D) <code>-4\\cos(x/2 - 90^\\circ) = -4(\\sin(x/2)) = -4\\sin(x/2)</code>. Todas las opciones resultan en la función <code>-4\\sin(x/2)</code>. Si la gráfica original fuera <code>4\\sin(x/2)</code>, todas estas opciones 'no pueden corresponder' directamente a ella, ya que representan una reflexión vertical de la función original. La opción C se marca como la respuesta correcta, lo cual implica una distinción específica a considerar en el contexto del problema original.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "3",
+    "internalId": "q-1757005454953-0.03378541789491485",
+    "id": "q-ai-cat-1757005454953-1-1"
+  },
+  {
+    "text": "Si ƒ(x) = 2sen(x), ¿cuál de las siguientes otra representación correcta del conjunto {x ∈ ℝ /ƒ(x) = −1}?",
+    "options": [
+      {
+        "text": "{30 + 360k, k ∈ ℤ} ∪ {−30 + 360k, k ∈ ℤ}"
+      },
+      {
+        "text": "{210 + 360k, k ∈ ℤ} ∪ {−30 + 360k, k ∈ ℤ}"
+      },
+      {
+        "text": "{180k ± 30, k ∈ ℤ}"
+      },
+      {
+        "text": "{180k ± 60, k ∈ ℤ}"
+      },
+      {
+        "text": "{180k ± 150, k ∈ ℤ}"
+      }
+    ],
+    "correct": 1,
+    "explanation": "Para resolver <code>2\\sin(x) = -1</code>, se obtiene <code>\\sin(x) = -1/2</code>. Los ángulos en el círculo unitario donde el seno es <code>-1/2</code> son <code>210^\\circ</code> (<code>7\\pi/6</code>) en el tercer cuadrante y <code>330^\\circ</code> (<code>11\\pi/6</code>) o su equivalente <code>-30^\\circ</code> (<code>-\\pi/6</code>) en el cuarto cuadrante. Por lo tanto, el conjunto de soluciones generales es <code>{x \\in \\mathbb{R} / x = 210^\\circ + 360^\\circ k \\text{ o } x = -30^\\circ + 360^\\circ k, k \\in \\mathbb{Z}}</code>.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "6",
+    "internalId": "q-1757005454953-0.03520875708988369",
+    "id": "q-ai-cat-1757005454953-1-2"
+  },
+  {
+    "text": "Si a la función ƒ(x) = sen(x) le triplicamos la amplitud, el periodo y le agregamos una fase de 90°, ¿a cuál de las siguientes gráficas corresponde la nueva función?",
+    "options": [
+      {
+        "text": "[Gráfica A]",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1757006524731-nwi5syfdnaf-Screenshot_20250904_131641.png",
+          "filename": "Screenshot_20250904_131641.png"
+        }
+      },
+      {
+        "text": "[Gráfica B]",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1757006524731-b3von46mj8-Screenshot_20250904_131652.png",
+          "filename": "Screenshot_20250904_131652.png"
+        }
+      },
+      {
+        "text": "[Gráfica C]",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1757006524731-8ilxyh5krt-Screenshot_20250904_131703.png",
+          "filename": "Screenshot_20250904_131703.png"
+        }
+      },
+      {
+        "text": "[Gráfica D]",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1757006524731-b7mho1fyib-Screenshot_20250904_131713.png",
+          "filename": "Screenshot_20250904_131713.png"
+        }
+      },
+      {
+        "text": "[Gráfica E]",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1757006524731-g99b45b2ldc-Screenshot_20250904_131724.png",
+          "filename": "Screenshot_20250904_131724.png"
+        }
+      }
+    ],
+    "correct": 3,
+    "explanation": "La función original es <code>f(x) = \\sin(x)</code>. Triplicar la amplitud significa que el coeficiente principal es 3. Triplicar el período <code>T</code> (de <code>360^\\circ</code> a <code>1080^\\circ</code>) implica que si <code>T = 360^\\circ/B</code>, entonces <code>1080^\\circ = 360^\\circ/B</code>, lo que resulta en <code>B = 1/3</code>. Agregar una fase de <code>90^\\circ</code> significa que el argumento es <code>x/3 + 90^\\circ</code>. La nueva función es <code>3\\sin(x/3 + 90^\\circ)</code>. Esta función tiene una amplitud de 3, un período de <code>1080^\\circ</code> y está desfasada <code>90^\\circ</code> a la izquierda en comparación con <code>3\\sin(x/3)</code>. La opción D representa una onda sinusoidal con estas características.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "8",
+    "internalId": "q-1757005454953-0.6259107781864724",
+    "id": "q-ai-cat-1757005454953-1-3"
+  },
+  {
+    "text": "Entonces, algebraicamente, ¿cuál es la nueva función descrita en el ejercicio anterior?",
+    "options": [
+      {
+        "text": "3sen(x/3 + 90)"
+      },
+      {
+        "text": "3sen(x/3 − 90)"
+      },
+      {
+        "text": "3sen((x−90)/3)"
+      },
+      {
+        "text": "3sen(3x − 90)"
+      },
+      {
+        "text": "3sen(3x + 90)"
+      }
+    ],
+    "correct": 0,
+    "explanation": "Como se determinó en el problema anterior, triplicar la amplitud de <code>f(x) = \\sin(x)</code> da 3. Triplicar el período (de <code>360^\\circ</code> a <code>1080^\\circ</code>) significa que el coeficiente de <code>x</code> debe ser <code>1/3</code>. Agregar una fase de <code>90^\\circ</code> implica sumar <code>90^\\circ</code> al argumento. La función resultante es <code>3\\sin(x/3 + 90^\\circ)</code>.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "9",
+    "internalId": "q-1757005454953-0.36244672747406237",
+    "id": "q-ai-cat-1757005454953-1-4"
+  },
+  {
+    "text": "El movimiento oscilatorio (...) se describe mediante una función del tipo y(t) = A cos(ωt + φ) (...). Si φ = 180° y queremos plantear la misma situación mediante la función g(x) = Asen(ωt + ψ), ¿cuál es el conjunto que TODOS los valores que puede tener ψ para que la función sea la apropiada?",
+    "options": [
+      {
+        "text": "{360k / k ∈ ℤ}"
+      },
+      {
+        "text": "{360k + 90 / k ∈ ℤ}"
+      },
+      {
+        "text": "{360k + 180 / k ∈ ℤ}"
+      },
+      {
+        "text": "{360k + 270 / k ∈ ℤ}"
+      }
+    ],
+    "correct": 3,
+    "explanation": "La función inicial es <code>y(t) = A \\cos(\\omega t + 180^\\circ)</code>. Usando la identidad <code>\\cos(\\theta + 180^\\circ) = -\\cos(\\theta)</code>, se reescribe como <code>y(t) = -A \\cos(\\omega t)</code>. Para expresarla como <code>A\\sin(\\omega t + \\psi)</code>, necesitamos que <code>\\sin(\\omega t + \\psi) = -\\cos(\\omega t)</code>. Sabemos que <code>\\sin(\\theta + 270^\\circ) = -\\cos(\\theta)</code>. Por lo tanto, <code>\\psi</code> debe ser <code>270^\\circ</code> más cualquier múltiplo entero de <code>360^\\circ</code>. Así, <code>\\psi \\in {360^\\circ k + 270^\\circ / k \\in \\mathbb{Z}}</code>.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "4",
+    "internalId": "q-1757005454953-0.8444882879557454",
+    "diagram": {
+      "type": "raster",
+      "src": "images/1757006524731-pwjpn68zhjq-Screenshot_20250904_131920.png",
+      "filename": "Screenshot_20250904_131920.png"
+    },
+    "id": "q-ai-cat-1757005454953-2-0"
+  },
+  {
+    "text": "¿Cuál de las siguientes transformaciones isométricas podría hacer que una función seno o coseno deje de serlo?",
+    "options": [
+      {
+        "text": "Una simetría axial respecto al eje Y"
+      },
+      {
+        "text": "Una simetría puntual respecto al origen"
+      },
+      {
+        "text": "Una traslación horizontal"
+      },
+      {
+        "text": "Una rotación respecto al origen"
+      },
+      {
+        "text": "Una simetría axial respecto al eje X"
+      }
+    ],
+    "correct": 3,
+    "explanation": "Las traslaciones y reflexiones (simetrías axiales o puntuales) son transformaciones isométricas que preservan la forma sinusoidal de las funciones seno o coseno, afectando solo su posición o dirección. Sin embargo, una rotación arbitraria respecto al origen (que no sea un múltiplo de <code>90^\\circ</code>) puede distorsionar fundamentalmente la forma de la onda, haciendo que la función resultante ya no sea una función seno o coseno.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "7",
+    "internalId": "q-1757005454953-0.015923185840741594",
+    "id": "q-ai-cat-1757005454953-2-1"
+  },
+  {
+    "text": "Si ƒ(x) = Asen(αx) donde A y α, son distintos de 0 y trabajamos en grados sexagesimales, ¿cuál de las siguientes expresiones puede ser distinta de 0?",
+    "options": [
+      {
+        "text": "ƒ(180/α)"
+      },
+      {
+        "text": "ƒ(360/α)"
+      },
+      {
+        "text": "ƒ(180)"
+      },
+      {
+        "text": "ƒ(720/α)"
+      }
+    ],
+    "correct": 2,
+    "explanation": "La función <code>f(x) = A\\sin(\\alpha x)</code> será cero cuando <code>\\sin(\\alpha x) = 0</code>, lo cual ocurre cuando <code>\\alpha x</code> es un múltiplo entero de <code>180^\\circ</code>. Evaluando las opciones: A) <code>f(180/\\alpha) = A\\sin(\\alpha \\cdot 180/\\alpha) = A\\sin(180^\\circ) = 0</code>. B) <code>f(360/\\alpha) = A\\sin(\\alpha \\cdot 360/\\alpha) = A\\sin(360^\\circ) = 0</code>. D) <code>f(720/\\alpha) = A\\sin(\\alpha \\cdot 720/\\alpha) = A\\sin(720^\\circ) = 0</code>. C) <code>f(180) = A\\sin(180^\\circ \\alpha)</code>. Esta expresión solo será 0 si <code>180^\\circ \\alpha</code> es un múltiplo de <code>180^\\circ</code>, lo que implica que <code>\\alpha</code> sea un entero. Sin embargo, <code>\\alpha</code> puede ser cualquier número real distinto de 0. Por ejemplo, si <code>\\alpha = 0.5</code>, entonces <code>f(180) = A\\sin(180^\\circ \\cdot 0.5) = A\\sin(90^\\circ) = A</code>. Como <code>A \\ne 0</code>, entonces <code>f(180)</code> puede ser distinto de 0.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "12",
+    "internalId": "q-1757005454953-0.9526251574845954",
+    "id": "q-ai-cat-1757005454953-2-2"
+  },
+  {
+    "text": "La profundidad de un arrecife de coral (...) se define por p(h) = 80 cos(15h) + 80 (...). ¿Para cuál de los siguientes valores de h, el arrecife se encuentra a una profundidad de 120 cm?",
+    "options": [
+      {
+        "text": "3"
+      },
+      {
+        "text": "4"
+      },
+      {
+        "text": "6"
+      },
+      {
+        "text": "8"
+      }
+    ],
+    "correct": 1,
+    "explanation": "Para encontrar cuándo la profundidad es <code>120 \\text{ cm}</code>, igualamos la función a <code>120</code>: <code>120 = 80\\cos(15h) + 80</code>. Restando 80 de ambos lados, obtenemos <code>40 = 80\\cos(15h)</code>. Dividiendo por 80, tenemos <code>\\cos(15h) = 1/2</code>. El valor principal para el cual el coseno es <code>1/2</code> es <code>60^\\circ</code>. Así, <code>15h = 60^\\circ</code>, lo que implica <code>h = 4</code>.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "14",
+    "internalId": "q-1757005454953-0.5703776173376092",
+    "id": "q-ai-cat-1757005454953-2-3"
+  },
+  {
+    "text": "¿Cuál de los siguientes gráficos representa mejor la situación descrita en el ejercicio anterior?",
+    "options": [
+      {
+        "text": "[Gráfica A]",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1757006524731-6xcsbusg5mx-Screenshot_20250904_132144.png",
+          "filename": "Screenshot_20250904_132144.png"
+        }
+      },
+      {
+        "text": "[Gráfica B]",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1757006524732-14e1mhbg3hil-Screenshot_20250904_132127.png",
+          "filename": "Screenshot_20250904_132127.png"
+        }
+      },
+      {
+        "text": "[Gráfica C]",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1757006524732-n1peapcdni-Screenshot_20250904_132109.png",
+          "filename": "Screenshot_20250904_132109.png"
+        }
+      },
+      {
+        "text": "[Gráfica D]",
+        "diagram": {
+          "type": "raster",
+          "src": "images/1757006524732-o6qfb0uojvj-Screenshot_20250904_132051.png",
+          "filename": "Screenshot_20250904_132051.png"
+        }
+      }
+    ],
+    "correct": 2,
+    "explanation": "La función es <code>p(h) = 80\\cos(15h) + 80</code>. Esto indica una amplitud de 80 y un desplazamiento vertical hacia arriba de 80. El valor máximo será <code>80+80=160</code> y el valor mínimo será <code>80-80=0</code>. El período es <code>360^\\circ/15 = 24</code>. Como es una función coseno con amplitud positiva, la gráfica comienza en su valor máximo en <code>h=0</code>, es decir, <code>p(0) = 80\\cos(0) + 80 = 160</code>. Por lo tanto, la gráfica debe ser una onda coseno que oscila entre 0 y 160, comenzando en 160 en <code>h=0</code>, con un período de 24 unidades. La opción C representa estas características.",
+    "sourceFileName": "Text Input",
+    "originalQuestionNumber": "15",
+    "internalId": "q-1757005454953-0.21307883584079246",
+    "id": "q-ai-cat-1757005454953-2-4"
+  }
+];
+        const categories = [
+  {
+    "id": "ai-cat-1757005454953-0",
+    "title": "Grupo 1: Conceptos Fundamentales e Interpretación de Gráficos",
+    "description": "<p>Este grupo se enfoca en los componentes esenciales de las funciones trigonométricas. Para abordar estas preguntas, es fundamental comprender:</p><ul><li><strong>Amplitud (<code>|A|</code>)</strong>: El valor absoluto del coeficiente principal de la función, que representa la mitad de la distancia entre el valor máximo y mínimo. Para <code>y = A sin(Bx + C) + D</code>, la amplitud es <code>|A|</code>.</li><li><strong>Período (<code>T</code>)</strong>: La duración de un ciclo completo de la onda. Se calcula como <code>T = \\frac{2\\pi}{|B|}</code> (en radianes) o <code>T = \\frac{360^\\circ}{|B|}</code> (en grados sexagesimales) para funciones de la forma <code>y = A sin(Bx + C) + D</code>.</li><li><strong>Recorrido (Rango)</strong>: El conjunto de todos los valores de salida posibles de la función. Para funciones de la forma <code>y = A sin(Bx + C) + D</code>, el recorrido es <code>[D - |A|, D + |A|]</code>. Es crucial considerar cualquier restricción de dominio.</li><li><strong>Identidades Trigonométricas Fundamentales</strong>:</li><ul><li>Función seno es impar: <code>sin(-x) = -sin(x)</code>.</li><li>Función coseno es par: <code>cos(-x) = cos(x)</code>.</li><li>Función tangente es impar: <code>tan(-x) = -tan(x)</code>.</li></ul><li><strong>Interpretación Gráfica</strong>: Reconocer la forma básica de las funciones seno (pasa por el origen con fase 0) y coseno (comienza en su máximo o mínimo con fase 0) y cómo la amplitud y el período afectan visualmente la gráfica.</li></ul>",
+    "summaryKey": "ai-cat-1757005454953-0",
+    "problem_ids": [
+      "q-ai-cat-1757005454953-0-0",
+      "q-ai-cat-1757005454953-0-1",
+      "q-ai-cat-1757005454953-0-2",
+      "q-ai-cat-1757005454953-0-3",
+      "q-ai-cat-1757005454953-0-4"
+    ]
+  },
+  {
+    "id": "ai-cat-1757005454953-1",
+    "title": "Grupo 2: Transformaciones y Manipulación Algebraica",
+    "description": "<p>Esta sección se centra en cómo las modificaciones algebraicas afectan la gráfica de las funciones trigonométricas. Los conceptos clave incluyen:</p><ul><li><strong>Transformaciones de Amplitud</strong>: Multiplicar la función por una constante <code>A</code> cambia la amplitud a <code>|A|</code>.</li><li><strong>Transformaciones de Período</strong>: Un coeficiente <code>B</code> en el argumento (<code>Bx</code>) modifica el período a <code>T = \\frac{2\\pi}{|B|}</code> (o <code>T = \\frac{360^\\circ}{|B|}</code>). Un período triplicado implica que el nuevo coeficiente <code>B_{nuevo}</code> debe ser un tercio del original.</li><li><strong>Desplazamiento de Fase (Horizontal)</strong>: Un término <code>C</code> en <code>(Bx + C)</code> introduce un desplazamiento horizontal de <code>\\frac{-C}{B}</code>. Una fase de <code>90^\\circ</code> significa una traslación horizontal.</li><li><strong>Equivalencia entre Seno y Coseno</strong>: Las funciones seno y coseno están intrínsecamente relacionadas por un desfase de <code>90^\\circ</code>. Identidades cruciales son <code>\\cos(\\theta) = \\sin(\\theta + 90^\\circ)</code> y <code>\\sin(\\theta) = \\cos(\\theta - 90^\\circ)</code>.</li><li><strong>Soluciones Generales de Ecuaciones Trigonométricas</strong>: Cuando se resuelve para <code>x</code>, las soluciones suelen ser un conjunto infinito que incluye múltiplos de <code>360^\\circ</code> (<code>2\\pi</code>) debido a la periodicidad de las funciones.</li></ul>",
+    "summaryKey": "ai-cat-1757005454953-1",
+    "problem_ids": [
+      "q-ai-cat-1757005454953-1-0",
+      "q-ai-cat-1757005454953-1-1",
+      "q-ai-cat-1757005454953-1-2",
+      "q-ai-cat-1757005454953-1-3",
+      "q-ai-cat-1757005454953-1-4"
+    ]
+  },
+  {
+    "id": "ai-cat-1757005454953-2",
+    "title": "Grupo 3: Aplicaciones Avanzadas y Modelado",
+    "description": "<p>Este grupo se enfoca en aplicar los conocimientos de funciones trigonométricas a situaciones más complejas y del mundo real, así como en manipulaciones avanzadas. Para un buen desempeño, considere:</p><ul><li><strong>Modelado de Fenómenos Periódicos</strong>: Las funciones trigonométricas son ideales para describir procesos que se repiten, como oscilaciones o ciclos. Una forma general es <code>y(t) = A \\cos(\\omega t + \\phi) + D</code>, donde:</li><ul><li><code>A</code> es la amplitud.</li><li><code>\\omega</code> es la frecuencia angular (<code>\\omega = \\frac{2\\pi}{T}</code>).</li><li><code>\\phi</code> es el desfase o fase inicial.</li><li><code>D</code> es el desplazamiento vertical.</li></ul><li><strong>Equivalencia de Fases entre Seno y Coseno</strong>: Es crucial poder convertir entre <code>\\sin(\\theta)</code> y <code>\\cos(\\theta)</code> mediante desfases. Las relaciones clave incluyen:</li><ul><li><code>\\cos(\\theta) = \\sin(\\theta + 90^\\circ)</code></li><li><code>\\sin(\\theta) = \\cos(\\theta - 90^\\circ)</code></li><li><code>\\cos(\\theta + 180^\\circ) = -\\cos(\\theta)</code></li><li><code>\\sin(\\theta + 270^\\circ) = -\\cos(\\theta)</code></li></ul><li><strong>Transformaciones Isométricas</strong>: Entender cómo las transformaciones (traslaciones, reflexiones, rotaciones) afectan la forma de una función trigonométrica. Mientras que traslaciones y reflexiones mantienen la forma sinusoidal, una rotación arbitraria puede alterarla fundamentalmente.</li><li><strong>Resolución de Ecuaciones Trigonométricas</strong>: Aplicar métodos algebraicos para encontrar los valores de la variable que satisfacen una ecuación trigonométrica, a menudo requiriendo soluciones generales.</li></ul>",
+    "summaryKey": "ai-cat-1757005454953-2",
+    "problem_ids": [
+      "q-ai-cat-1757005454953-2-0",
+      "q-ai-cat-1757005454953-2-1",
+      "q-ai-cat-1757005454953-2-2",
+      "q-ai-cat-1757005454953-2-3",
+      "q-ai-cat-1757005454953-2-4"
+    ]
+  }
+];
+
+        const problemsById = {};
+        allProblemsData.forEach(p => { problemsById[p.id] = p; });
+        
+        let currentQuizProblems = [];
+        let currentCategory = null;
+        let completedCategories = JSON.parse(localStorage.getItem('completedQuizCategories')) || {};
+        let currentProblemIndex = 0;
+        let score = 0;
+        
+        const categorySelectionScreen = document.getElementById('category-selection-screen');
+        const categoryListEl = document.getElementById('category-list');
+        const overallProgressContainer = document.getElementById('overall-progress-container');
+        const overallScoreEl = document.getElementById('overall-score');
+        const showFinalResultsBtn = document.getElementById('show-final-results-btn');
+        const quizWrapperEl = document.getElementById('quiz-wrapper');
+        const summaryContainerEl = document.getElementById('summary-container');
+        const summaryContinueBtn = document.getElementById('summary-continue-btn');
+        const quizContainerEl = document.getElementById('quiz-container');
+        const headerEl = document.getElementById('problem-header');
+        const questionEl = document.getElementById('question-container');
+        const graphEl = document.getElementById('graph-container');
+        const optionsEl = document.getElementById('options-container');
+        const feedbackEl = document.getElementById('feedback-container');
+        const nextButton = document.getElementById('next-button');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreCounterEl = document.getElementById('score-counter');
+        const finalScreenEl = document.getElementById('final-screen');
+        const backToMenuBtn = document.getElementById('back-to-menu-btn');
+
+        function renderCategoryScreen() {
+            categoryListEl.innerHTML = '';
+            let totalCompleted = 0;
+            let totalPossibleScore = 0;
+            let totalUserScore = 0;
+
+            categories.forEach(cat => {
+                const li = document.createElement('li');
+                li.className = 'category-item';
+                li.dataset.categoryId = cat.id;
+                
+                const catProgress = completedCategories[cat.id];
+                let progressHTML = '';
+                if(catProgress) {
+                    li.classList.add('completed');
+                    if (catProgress.total > 0) {
+                        progressHTML = `<div class="progress-info">Completado: ${catProgress.score}/${catProgress.total}</div>`;
+                    }
+                    totalCompleted++;
+                    totalUserScore += catProgress.score;
+                    totalPossibleScore += cat.problem_ids.length;
+                }
+
+                li.innerHTML = `<h3>${cat.title}</h3><p>${cat.description.replace(/<[^>]*>?/gm, '').substring(0, 100)}...</p>${progressHTML}`;
+                li.onclick = () => {
+                    if (!li.classList.contains('completed')) {
+                        startCategory(cat.id);
+                    }
+                };
+                categoryListEl.appendChild(li);
+            });
+
+            if (Object.keys(completedCategories).length > 0) {
+                overallProgressContainer.classList.remove('hidden');
+                overallScoreEl.textContent = `Puntaje total: ${totalUserScore} de ${totalPossibleScore} correctas. Secciones completadas: ${totalCompleted} de ${categories.length}.`;
+            } else {
+                 overallProgressContainer.classList.add('hidden');
+            }
+
+            if (totalCompleted === categories.length && categories.length > 0) {
+                showFinalResultsBtn.classList.remove('hidden');
+            } else {
+                showFinalResultsBtn.classList.add('hidden');
+            }
+
+            quizWrapperEl.classList.add('hidden');
+            categorySelectionScreen.classList.remove('hidden');
+        }
+
+        function startCategory(categoryId) {
+            currentCategory = categories.find(c => c.id === categoryId);
+            if (!currentCategory) return;
+            
+            categorySelectionScreen.classList.add('hidden');
+            quizWrapperEl.classList.remove('hidden');
+
+            currentQuizProblems = currentCategory.problem_ids.map(id => problemsById[id]);
+            currentProblemIndex = 0;
+            score = 0;
+            
+            showSummary(currentCategory.id);
+        }
+
+        function showSummary(summaryKey) {
+            const summary = summaries[summaryKey];
+            if (!summary) {
+                 summaryContinueBtn.onclick(); return;
+            }
+            
+            const summaryTitleEl = document.getElementById('summary-title');
+            const keyConceptsEl = document.getElementById('summary-key-concepts');
+            const tipsListEl = document.getElementById('summary-tips-list');
+    
+            summaryTitleEl.textContent = `Preparación para: ${summary.title}`;
+            keyConceptsEl.innerHTML = summary.key_concepts_html;
+            
+            tipsListEl.innerHTML = '';
+            summary.tips.forEach(tip => {
+                const li = document.createElement('li');
+                li.textContent = tip;
+                tipsListEl.appendChild(li);
+            });
+            
+            renderMath();
+            quizContainerEl.classList.add('hidden');
+            finalScreenEl.classList.add('hidden');
+            summaryContainerEl.classList.remove('hidden');
+        }
+
+        summaryContinueBtn.onclick = () => {
+            summaryContainerEl.classList.add('hidden');
+            if (currentQuizProblems && currentQuizProblems.length > 0) {
+                quizContainerEl.classList.remove('hidden');
+                renderProblem(currentProblemIndex);
+            } else {
+                endOfCategory();
+            }
+        };
+        
+        function renderProblem(index) {
+            optionsEl.innerHTML = '';
+            feedbackEl.style.display = 'none';
+            nextButton.classList.remove('visible');
+            graphEl.innerHTML = '';
+            optionsEl.className = '';
+
+            const problem = currentQuizProblems[index];
+            if (!problem) {
+                console.error("Could not find problem for index:", index, "in category:", currentCategory.title);
+                questionEl.innerHTML = "Error: No se pudo cargar la pregunta. Verifique que los datos sean correctos.";
+                return;
+            }
+
+            headerEl.textContent = `Pregunta ${index + 1} de ${currentQuizProblems.length}`;
+            questionEl.innerHTML = problem.text;
+            progressBar.style.width = `${((index) / currentQuizProblems.length) * 100}%`;
+            scoreCounterEl.textContent = `✅ Puntos: ${score}`;
+            
+            if (problem.diagram) {
+                graphEl.style.display = 'block';
+                graphEl.innerHTML = renderDiagram(problem.diagram);
+            } else {
+                graphEl.style.display = 'none';
+            }
+            
+            const optionsHaveDiagrams = problem.options.some(opt => opt.diagram);
+
+            if (optionsHaveDiagrams) {
+                 optionsEl.className = 'options-grid-with-graphs';
+                 problem.options.forEach((opt, i) => createOptionBlock(opt, i));
+            } else {
+                 problem.options.forEach((opt, i) => createOptionButton(opt, i));
+            }
+            renderMath();
+        }
+        
+        function createOptionButton(option, index) {
+            const button = document.createElement('button');
+            button.className = 'option-button';
+            button.dataset.index = index;
+            button.innerHTML = `<span class="label">${String.fromCharCode(65 + index)})</span> <span class="value">${option.text || ''}</span>`;
+            button.onclick = handleOptionClick;
+            optionsEl.appendChild(button);
+        }
+        
+        function createOptionBlock(option, index) {
+            const optionBlock = document.createElement('div');
+            optionBlock.className = 'option-block-graph';
+            optionBlock.dataset.index = index;
+            optionBlock.onclick = handleOptionClick;
+            let diagramHTML = option.diagram ? `<div class="option-graph-canvas-container">${renderDiagram(option.diagram)}</div>` : '';
+            optionBlock.innerHTML = `<div class="label">${String.fromCharCode(65 + index)}) ${option.text || ''}</div> ${diagramHTML}`;
+            optionsEl.appendChild(optionBlock);
+        }
+
+        function handleOptionClick(event) {
+            const problem = currentQuizProblems[currentProblemIndex];
+            const selectedIndex = parseInt(event.currentTarget.dataset.index, 10);
+            const correctIndex = problem.correct;
+            
+            const correctButton = document.querySelector(`[data-index="${correctIndex}"]`);
+            if (correctButton) correctButton.classList.add('correct');
+            
+            let isAnswerCorrect = false;
+            const selectedButton = event.currentTarget;
+            if (selectedIndex === correctIndex) {
+                score++;
+                isAnswerCorrect = true;
+            } else {
+                selectedButton.classList.add('incorrect');
+            }
+            
+            scoreCounterEl.textContent = `✅ Puntos: ${score}`;
+            document.querySelectorAll('.option-button, .option-block-graph').forEach(btn => { btn.classList.add('disabled'); btn.onclick = null; });
+            progressBar.style.width = `${((currentProblemIndex + 1) / currentQuizProblems.length) * 100}%`;
+            
+            feedbackEl.className = isAnswerCorrect ? 'feedback-container correct' : 'feedback-container incorrect';
+            const feedbackTitle = isAnswerCorrect ? `<div id="feedback-title">${icons.check} Correcto</div>` : `<div id="feedback-title">${icons.x} Incorrecto</div>`;
+            feedbackEl.innerHTML = `${feedbackTitle}${problem.explanation}`;
+            
+            renderMath();
+            feedbackEl.style.display = 'block';
+            if (currentProblemIndex < currentQuizProblems.length - 1) { nextButton.textContent = 'Siguiente →'; } 
+            else { nextButton.textContent = 'Finalizar Sección'; }
+            nextButton.classList.add('visible');
+        }
+
+        nextButton.onclick = () => {
+            currentProblemIndex++;
+            if (currentProblemIndex < currentQuizProblems.length) {
+                renderProblem(currentProblemIndex);
+            } else {
+                endOfCategory();
+            }
+        };
+        
+        function endOfCategory() {
+            completedCategories[currentCategory.id] = {
+                score: score,
+                total: currentQuizProblems.length
+            };
+            localStorage.setItem('completedQuizCategories', JSON.stringify(completedCategories));
+            
+            quizContainerEl.classList.add('hidden');
+            finalScreenEl.classList.remove('hidden');
+
+            const percentage = currentQuizProblems.length > 0 ? Math.round((score / currentQuizProblems.length) * 100) : 100;
+            document.getElementById('final-title').textContent = `Sección Completada: ${currentCategory.title}`;
+            document.getElementById('final-message').textContent = currentQuizProblems.length > 0 ? `¡Gran trabajo! Has completado esta sección.` : `¡Concepto explorado! Ahora puedes continuar con la siguiente sección.`;
+            document.getElementById('final-score').textContent = currentQuizProblems.length > 0 ? `${score} / ${currentQuizProblems.length}` : '✔';
+            const finalPercentageEl = document.getElementById('final-percentage');
+            if (currentQuizProblems.length > 0) {
+                finalPercentageEl.textContent = `(${percentage}%)`;
+                finalPercentageEl.style.color = percentage >= 60 ? 'var(--success-color)' : 'var(--danger-color)';
+            } else {
+                finalPercentageEl.textContent = '';
+            }
+            backToMenuBtn.textContent = 'Volver al Menú';
+            backToMenuBtn.onclick = () => {
+                finalScreenEl.classList.add('hidden');
+                renderCategoryScreen();
+            };
+        }
+        
+        showFinalResultsBtn.onclick = () => {
+            categorySelectionScreen.classList.add('hidden');
+            quizWrapperEl.classList.remove('hidden');
+
+            summaryContainerEl.classList.add('hidden');
+            quizContainerEl.classList.add('hidden');
+            finalScreenEl.classList.remove('hidden');
+
+            let totalScore = 0;
+            let totalProblems = 0;
+            Object.values(completedCategories).forEach(cat => {
+                totalScore += cat.score;
+                if (cat.total > 0) {
+                    totalProblems += cat.total;
+                }
+            });
+
+            const percentage = totalProblems > 0 ? Math.round((totalScore / totalProblems) * 100) : 0;
+            document.getElementById('final-title').textContent = '¡Resumen Final del Desafío!';
+            document.getElementById('final-message').textContent = '¡Felicidades! Has completado todos los temas. Este es tu rendimiento general.';
+            document.getElementById('final-score').textContent = `${totalScore} / ${totalProblems}`;
+            const finalPercentageEl = document.getElementById('final-percentage');
+            finalPercentageEl.textContent = `(${percentage}%)`;
+            finalPercentageEl.style.color = percentage >= 60 ? 'var(--success-color)' : 'var(--danger-color)';
+            
+            backToMenuBtn.textContent = 'Reiniciar Desafío';
+            backToMenuBtn.onclick = () => {
+                localStorage.removeItem('completedQuizCategories');
+                window.location.reload();
+            };
+        };
+        
+        renderCategoryScreen();
+        renderMath();
+    });
+    </script>
+</body>
+</html>
+  
